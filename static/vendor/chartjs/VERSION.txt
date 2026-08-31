@@ -1,0 +1,8 @@
+Chart.js 4.5.1 (UMD build)
+Source: https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.js
+Fetched: 2026-08-30
+License: MIT (see https://github.com/chartjs/Chart.js/blob/master/LICENSE.md)
+
+Vendored locally (not loaded from a CDN at runtime) so the visualizer works
+offline and makes no outbound network calls from the browser, consistent with
+this project's confidential-data handling.

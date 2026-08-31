@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LeRobot Dataset Visualizer</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <script type="importmap">
+    { "imports": { "three": "/static/vendor/three/three.module.js" } }
+  </script>
+</head>
+<body>
+  <script src="/static/vendor/chartjs/chart.umd.js"></script>
+
+  <header id="topBar">
+    <div class="navRow1">
+      <nav class="pageNav">
+        <a href="/" class="active">Viewer</a>
+        <a href="/analysis.html">Dataset Analysis</a>
+      </nav>
+      <label>Episode <select id="episodeSelect"></select></label>
+    </div>
+  </header>
+
+  <div id="appShell">
+  <aside id="episodeSidebar">
+    <div id="episodeSidebarHeader"></div>
+    <ul id="episodeList"></ul>
+  </aside>
+
+  <main id="mainGrid">
+    <section id="videoSection" class="panel panel--primary">
+      <h2>Video</h2>
+      <video id="video" controls preload="auto"></video>
+    </section>
+
+    <section id="sceneSection" class="panel panel--primary">
+      <h2>3D Scene</h2>
+      <div id="scene3d"></div>
+      <details class="sceneSettings">
+        <summary>Display Options</summary>
+        <div class="toggles">
+          <label><input type="checkbox" id="currentTrackToggle" checked /> <span>Show current track</span></label>
+          <label><input type="checkbox" id="actionTargetToggle" checked /> <span>Show action target</span></label>
+          <label><input type="checkbox" id="nextTrackToggle" /> <span>Show next-frame track (evidence for action[i]==track[i+1])</span></label>
+          <label><input type="checkbox" id="skeletonToggle" /> <span></span></label>
+          <label><input type="checkbox" id="cameraToggle" checked /> <span>Show camera pose gizmo</span></label>
+        </div>
+        <div class="legend">
+          <span class="swatch solid" style="--color:#4da3ff"></span> left hand (current)
+          <span class="swatch hollow" style="--color:#4da3ff"></span> left action target
+          <span class="swatch ghost" style="--color:#4da3ff"></span> left next-frame track
+          <span class="swatch solid" style="--color:#ff9d4d"></span> right hand (current)
+          <span class="swatch hollow" style="--color:#ff9d4d"></span> right action target
+          <span class="swatch ghost" style="--color:#ff9d4d"></span> right next-frame track
+        </div>
+      </details>
+    </section>
+
+    <nav class="contentTabs" id="viewerTabs">
+      <button class="tabButton isActive" data-tab-target="charts">Charts</button>
+      <button class="tabButton" data-tab-target="inspector">Inspector</button>
+    </nav>
+
+    <section id="chartsSection" class="panel panel--secondary" data-tab-panel="charts">
+      <h2>Temporal Metrics</h2>
+      <div class="chartsGrid">
+        <div class="chartGroup">
+          <h3 class="chartGroupTitle">Hand Motion</h3>
+          <div class="chartWrapper"><canvas id="chartHandCentroidSpeed"></canvas></div>
+          <p class="chartNote">computed as |centroid(t) &minus; centroid(t&minus;1)| / &Delta;t, where centroid is the mean of the 21 hand-landmark positions (world frame).</p>
+          <div class="chartWrapper"><canvas id="chartHandArticulation"></canvas></div>
+          <p class="chartNote">computed as ||hand_pose(t) &minus; hand_pose(t&minus;1)|| / &Delta;t over the 45-value MANO joint-pose vector &mdash; independent of centroid speed: a hand can translate fast with rigid fingers, or stay still while grasping.</p>
+        </div>
+        <div class="chartWrapper"><canvas id="chartHandSpan"></canvas></div>
+        <p class="chartNote">max pairwise distance among the 21 hand-landmark positions in a single frame (not a rate &mdash; a per-frame snapshot).</p>
+        <div class="chartWrapper"><canvas id="chartCameraSpeed"></canvas></div>
+        <p class="chartNote">computed as |position(t) &minus; position(t&minus;1)| / &Delta;t on the camera's world-frame position.</p>
+      </div>
+      <div id="qaReadout" class="qaReadout"></div>
+    </section>
+
+    <section id="inspectorSection" class="panel panel--tertiary" data-tab-panel="inspector" hidden>
+      <h2>Frame Inspector</h2>
+      <div id="frameInspector"></div>
+    </section>
+  </main>
+  </div>
+
+  <div id="transportBar">
+    <span class="transportField">Frame <input type="number" id="frameInput" min="0" step="1" /> / <span id="frameTotal">&mdash;</span></span>
+    <span id="timestampDisplay">Timestamp &mdash; s</span>
+    <button id="stepBack">&#9664; -1 frame</button>
+    <button id="playPause">&#9654; Play</button>
+    <button id="stepForward">+1 frame &#9654;</button>
+    <input type="range" id="scrubber" min="0" max="0" value="0" />
+    <div id="scrubberTooltip" class="scrubberTooltip" hidden></div>
+  </div>
+
+  <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>

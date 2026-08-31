@@ -1,0 +1,18 @@
+three.js 0.185.1 (ES module build)
+Source: https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js
+Fetched: 2026-08-30
+
+three.core.js (three.module.js imports its class implementations from this sibling
+file as of this version -- both are required)
+Source: https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.core.js
+Fetched: 2026-08-30
+
+examples/jsm/controls/OrbitControls.js
+Source: https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/controls/OrbitControls.js
+Fetched: 2026-08-30
+
+License: MIT (see https://github.com/mrdoob/three.js/blob/master/LICENSE)
+
+Vendored locally (not loaded from a CDN at runtime) so the visualizer works
+offline and makes no outbound network calls from the browser, consistent with
+this project's confidential-data handling.

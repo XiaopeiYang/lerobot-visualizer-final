@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lerobot-visualizer"
+version = "0.1.0"
+description = "Schema inspection and local visualization for a confidential LeRobot dataset"
+requires-python = ">=3.10"
+dependencies = [
+    "av==18.1.0",
+    "pyarrow==25.0.1",
+    "flask==3.1.3",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
