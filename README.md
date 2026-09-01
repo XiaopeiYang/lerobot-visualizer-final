@@ -35,10 +35,25 @@ python scripts/run_visualizer.py --dataset-root data/raw
 然后打开：
 - `http://127.0.0.1:5000/` — **Viewer**
 
-  支持浏览 Episode，并按 frame / timestamp 导航。页面左侧用于选择 Episode，顶部同步展示第一视角视频和 3D 手部轨迹 / 相机位姿；
-  底部通过 **Charts / Inspector** 展示有意义的时序指标，以及当前帧的 metadata、action、pose、track 等字段和原始数据。视频、3D 场景、图表和逐帧数据共享同一时间轴并保持同步。；
-- `http://127.0.0.1:5000/analysis.html` — Analysis 页面（数据结构、统计分布、
-  跨模态关系、数据质量与结论）。
+  支持浏览 Episode，并按 frame / timestamp 导航。页面围绕统一时间轴组织：
+  
+  - **Episode Navigation：** 左侧选择 Episode，并查看任务信息。
+  - **Video & 3D Scene：** 顶部同步展示第一视角视频、3D 手部轨迹和相机位姿。
+  - **Charts：** 展示手部运动、姿态变化等时序指标。
+  - **Inspector：** 展示当前帧的 metadata、action、pose、track 等字段及原始数据。
+
+  视频、3D 场景、图表和逐帧数据共享同一 frame / timestamp 时间轴并保持同步。
+- `http://127.0.0.1:5000/analysis.html` — **Analysis**
+
+  分析页面按 **Overview / Statistics / Relationships / Data Quality / Findings & Recommendations** 五个部分组织：
+
+  - **Overview：** 汇总数据集规模、时长、FPS、robot type，以及关键字段的语义、shape 和坐标系；同时列出分析中的 assumptions / unknowns。
+  - **Statistics：** 展示手部运动、姿态变化率、相机运动等指标的统计分布和分位数，并标记值得进一步检查的 high-motion regions。
+  - **Relationships：** 分析不同数据模态之间的关系，包括 action 与 hand track 的时序偏移、video 与 dataset timestamp 同步，以及 camera motion 与 hand motion 的相关性。
+  - **Data Quality：** 检查 schema 一致性、timestamp gap / duplicate、视频同步、quaternion 有效性、MANO betas 信息量，以及已验证的数据质量问题。
+  - **Findings & Recommendations：** 将分析结果进一步整理为对训练、评估、特征选择和数据治理有价值的结论与建议。
+
+  页面使用 **Verified Fact / Metadata Declaration / Inference / Hypothesis / Unknown** 标签区分直接观察到的事实、元数据声明、合理推断、待验证假设和未知项，并为关键发现提供 supporting evidence。
 
 ## 设计取舍
 
