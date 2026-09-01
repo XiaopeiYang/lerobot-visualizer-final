@@ -15,11 +15,12 @@ python -m pip install -e .
 依赖直接写在 `pyproject.toml` 里（`pyarrow`、`av`、`flask`）。
 
 数据集本身不在仓库里（机密数据，已在 `.gitignore` 中排除），需要用凭证从
-R2 对象存储同步一次到本地代码文件夹下：
+R2 对象存储同步一次到本地代码文件夹./data/raw下：
 
 ```bash
-aws s3 sync s3://<bucket> \
-  --endpoint-url <r2-endpoint> --region auto
+aws s3 sync s3://<bucket> ./data/raw \
+  --endpoint-url <r2-endpoint> \
+  --region auto
 ```
 
 应用运行时只读本地 `data/raw/`，不做任何运行时的远程/网络访问。
