@@ -74,9 +74,8 @@ python scripts/run_visualizer.py --dataset-root data/raw
   异常、任务均衡度）代码是通用实现，但在当前数据上只有 N=1，实际上是空跑，
   没有在多 episode 数据上验证过。
 
-* **是针对这份数据集 schema 定制的分析器，不是通用 LeRobot 分析器。**
-  手部 track、MANO 参数、四元数关键点这些字段的解释都是按当前数据集的
-  具体格式写的，换一个字段结构明显不同的数据集需要改代码。
+* **当前数据访问层针对本数据集 schema 做了适配。**
+  由于当前 metadata schema 无法被测试过的官方 `LeRobotDataset` 直接读取，项目采用轻量只读访问层。该实现能够稳定支持当前数据，但并不是面向所有 LeRobot schema 的通用 loader；对于字段结构不同的数据集，需要增加适配代码。
 
 * **不做完整的 MANO 3D 网格重建。** 需要有版权的 MANO body-model 资源，
   项目没有随附，因此直接把解析出来的 MANO 参数当数值信号使用，而不
