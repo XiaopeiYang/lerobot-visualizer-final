@@ -33,8 +33,10 @@ python scripts/run_visualizer.py --dataset-root data/raw
 ```
 
 然后打开：
-- `http://127.0.0.1:5000/` — Viewer（视频、3D 场景、逐帧 metadata / action /
-  pose / track 字段、时序图表、frame/timestamp 导航）；
+- `http://127.0.0.1:5000/` — **Viewer**
+
+  支持浏览 Episode，并按 frame / timestamp 导航。页面左侧用于选择 Episode，顶部同步展示第一视角视频和 3D 手部轨迹 / 相机位姿；
+  底部通过 **Charts / Inspector** 展示有意义的时序指标，以及当前帧的 metadata、action、pose、track 等字段和原始数据。视频、3D 场景、图表和逐帧数据共享同一时间轴并保持同步。；
 - `http://127.0.0.1:5000/analysis.html` — Analysis 页面（数据结构、统计分布、
   跨模态关系、数据质量与结论）。
 
