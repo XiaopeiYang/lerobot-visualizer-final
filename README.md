@@ -70,16 +70,12 @@ python scripts/run_visualizer.py --dataset-root data/raw
 
 ## 已知限制
 
-* **只有一个 episode。** 跨 episode 的检查（schema drift、按 episode 排序
-  异常、任务均衡度）代码是通用实现，但在当前数据上只有 N=1，实际上是空跑，
-  没有在多 episode 数据上验证过。
+* **当前数据集只有一个 Episode。** 跨 Episode 的检查（如 schema drift、Episode 间分布和任务均衡度）已有实现，但在当前 N=1 的数据上无法形成有意义的跨 Episode 比较，也尚未在多 Episode 数据集上验证。
 
 * **当前数据访问层针对本数据集 schema 做了适配。**
   由于当前 metadata schema 无法被测试过的官方 `LeRobotDataset` 直接读取，项目采用轻量只读访问层。该实现能够稳定支持当前数据，但并不是面向所有 LeRobot schema 的通用 loader；对于字段结构不同的数据集，需要增加适配代码。
 
-* **不做完整的 MANO 3D 网格重建。** 需要有版权的 MANO body-model 资源，
-  项目没有随附，因此直接把解析出来的 MANO 参数当数值信号使用，而不
-  重建出手部网格。
+* **不做完整的 MANO 3D 网格重建。** 项目未包含 MANO body model 资源，因此将数据中的 MANO 参数作为数值信号分析，而不进行手部 mesh reconstruction。
 
 * **3D 场景展示的是数据中记录的信号，不是标定过的世界坐标重建。**
   Metadata 里声明了相机内外参和畸变系数，但代码里没有任何投影或去畸变
@@ -96,13 +92,10 @@ python scripts/run_visualizer.py --dataset-root data/raw
   `timeupdate` 事件做最近帧查找，不是逐帧精确解码，不能当作严格的科学
   视频解码器。
 
-* **本地开发服务器仅限单用户本地使用。** 因为数据集机密，Flask 默认绑定
+* **本地开发服务器仅限单用户本地使用。** Flask 默认绑定
   `127.0.0.1`，用的是 Werkzeug 内置开发服务器，不用于并发访问或生产
   环境。
 
-* **数据来自私有对象存储，需要一次性同步。** 数据集存在 R2（S3 兼容）
-  私有桶里，需要用凭证同步一次到本地；应用本身运行时不依赖网络或远程
-  存储，只读本地已同步的文件。
 
 ## 可复现性
 
