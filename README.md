@@ -13,8 +13,7 @@ python -m pip install -e .
 
 依赖直接写在 `pyproject.toml` 里（`pyarrow`、`av`、`flask`）。
 
-数据集本身不在仓库里（机密数据，已在 `.gitignore` 中排除），需要用凭证从
-R2 对象存储同步一次到本地代码文件夹./data/raw下：
+数据集本身不在仓库中（机密数据，已通过 `.gitignore` 排除），需要使用凭证从 R2 对象存储同步一次到项目目录下的 `./data/raw/`：
 
 ```bash
 aws s3 sync s3://<bucket> ./data/raw \
@@ -49,7 +48,7 @@ python scripts/run_visualizer.py --dataset-root data/raw
   - **Overview：** 汇总数据集规模、时长、FPS、robot type，以及关键字段的语义、shape 和坐标系；同时列出分析中的 assumptions / unknowns。
   - **Statistics：** 展示手部运动、姿态变化率、相机运动等指标的统计分布和分位数，并标记值得进一步检查的 high-motion regions。
   - **Relationships：** 分析不同数据模态之间的关系，包括 action 与 hand track 的时序偏移、video 与 dataset timestamp 同步，以及 camera motion 与 hand motion 的相关性。
-  - **Data Quality：** 检查 schema 一致性、timestamp gap / duplicate、视频同步、quaternion 有效性、MANO betas 信息量，以及已验证的数据质量问题。
+  - **Data Quality：** 检查 schema 一致性、timestamp gap / duplicate、视频同步、quaternion 有效性和 MANO betas 信息量，并区分需要关注的信号与已验证的数据质量问题。
   - **Findings & Recommendations：** 将分析结果进一步整理为对训练、评估、特征选择和数据治理有价值的结论与建议。
 
   页面使用 **Verified Fact / Metadata Declaration / Inference / Hypothesis / Unknown** 标签区分直接观察到的事实、元数据声明、合理推断、待验证假设和未知项，并为关键发现提供 supporting evidence。
@@ -58,10 +57,7 @@ python scripts/run_visualizer.py --dataset-root data/raw
 
 * **保持轻量依赖。** Flask + 原生 JS，无前端构建步骤；数据读取直接使用 PyArrow 解析 Parquet。项目验证过官方 `LeRobotDataset`，但当前数据集的 metadata schema 与官方 loader 的预期结构不兼容，因此采用轻量只读访问层。项目无需引入 `torch`，运行依赖保持在 `pyarrow`、`av` 和 `flask`。
 
-* **访问层只读，且和上层逻辑分层解耦。** `dataset.py`（读取 parquet/视频
-  路径）→ `semantics.py`（纯语义解释，不做任何 I/O）→ `metrics.py`（派生
-  数值信号）→ `webapp.py`（唯一接触 Flask 的模块）。全链路没有任何写入
-  原始数据的代码路径。
+* **访问层只读，且和上层逻辑分层解耦。** `dataset.py`（读取 Parquet / 视频路径）→ `semantics.py`（语义解释，不做 I/O）→ `metrics.py`（派生数值信号）→ `webapp.py`（Web/API 层）。数据访问与分析链路按只读方式设计，不修改原始数据。
 
 * **证据优先：区分“元数据声明”和“物理验证事实”。** 例如字段 dtype 的 metadata 声明和 Parquet 中实际读取到的物理类型会分别保留，不会互相覆盖。Analysis 页面也使用事实 / 元数据声明 / 推断 / 假设 / 未知标签区分关键结论的证据等级，避免把解释当作已验证事实。
 
@@ -72,8 +68,7 @@ python scripts/run_visualizer.py --dataset-root data/raw
 
 * **当前数据集只有一个 Episode。** 跨 Episode 的检查（如 schema drift、Episode 间分布和任务均衡度）已有实现，但在当前 N=1 的数据上无法形成有意义的跨 Episode 比较，也尚未在多 Episode 数据集上验证。
 
-* **当前数据访问层针对本数据集 schema 做了适配。**
-  由于当前 metadata schema 无法被测试过的官方 `LeRobotDataset` 直接读取，项目采用轻量只读访问层。该实现能够稳定支持当前数据，但并不是面向所有 LeRobot schema 的通用 loader；对于字段结构不同的数据集，需要增加适配代码。
+* **当前数据访问层针对本数据集 schema 做了适配。** 该实现稳定支持当前数据，但并不是面向所有 LeRobot schema 的通用 loader；对于字段结构明显不同的数据集，需要增加相应的字段映射或适配代码。
 
 * **不做完整的 MANO 3D 网格重建。** 项目未包含 MANO body model 资源，因此将数据中的 MANO 参数作为数值信号分析，而不进行手部 mesh reconstruction。
 
@@ -86,11 +81,7 @@ python scripts/run_visualizer.py --dataset-root data/raw
   比如 21 个手部关键点分别对应哪个部位这类信息数据集没有给出，只用于
   Viewer 里一个可选的叠加显示，并在页面上标注为未验证。
 
-* **视频 / 时间戳同步是抽样校验，不是逐帧穷举。** 服务端会解码实际视频
-  帧，和存储的时间戳比较，每个 episode 抽样约 15 帧，测得误差在微秒级
-  （比一帧间隔小 4 个数量级），但这只覆盖抽样帧；浏览器端播放时用
-  `timeupdate` 事件做最近帧查找，不是逐帧精确解码，不能当作严格的科学
-  视频解码器。
+* **视频 / 时间戳同步采用抽样校验，而非逐帧穷举。** 服务端会解码实际视频帧并与存储的 timestamp 比较；当前数据的抽样结果显示同步误差远小于单帧间隔，但该结论只覆盖被抽样的帧。浏览器播放通过 `timeupdate` 事件匹配最近数据帧，并非逐帧精确视频解码，因此不应视为严格的科学视频解码器。
 
 * **本地开发服务器仅限单用户本地使用。** Flask 默认绑定
   `127.0.0.1`，用的是 Werkzeug 内置开发服务器，不用于并发访问或生产
