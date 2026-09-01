@@ -1,7 +1,6 @@
 # LeRobot 数据集可视化与分析工具
 
-面向一个 LeRobot 3.0 数据集（人体第一视角手部追踪）的
-episode 可视化工具，以及一个数据集级别的分析页面。
+面向一份 LeRobot 3.0 人体第一视角手部追踪数据集的 Episode 可视化与数据分析工具。
 
 ## 环境
 
@@ -57,24 +56,16 @@ python scripts/run_visualizer.py --dataset-root data/raw
 
 ## 设计取舍
 
-* **轻量级技术栈，不引入额外依赖。** Flask + 原生 JS、无构建步骤；数据
-  读取直接用 PyArrow 解析 parquet。项目评估过直接使用官方 `LeRobotDataset`
-  loader，但所提供数据集的 metadata 与测试过的官方 loader 路径不完全
-  兼容，因此改为自研的轻量只读访问层——整个项目也因此不需要 `torch`，
-  依赖始终保持在 `pyarrow` + `av` + `flask` 三个包，安装和复现成本很低。
+* **保持轻量依赖。** Flask + 原生 JS，无前端构建步骤；数据读取直接使用 PyArrow 解析 Parquet。项目验证过官方 `LeRobotDataset`，但当前数据集的 metadata schema 与官方 loader 的预期结构不兼容，因此采用轻量只读访问层。项目无需引入 `torch`，运行依赖保持在 `pyarrow`、`av` 和 `flask`。
 
 * **访问层只读，且和上层逻辑分层解耦。** `dataset.py`（读取 parquet/视频
   路径）→ `semantics.py`（纯语义解释，不做任何 I/O）→ `metrics.py`（派生
   数值信号）→ `webapp.py`（唯一接触 Flask 的模块）。全链路没有任何写入
   原始数据的代码路径。
 
-* **证据优先：区分"元数据声明"和"物理验证事实"。** 例如某个字段的
-  dtype，metadata 里声明的类型和从 parquet 实际读到的物理类型会分别保留、
-  分别暴露，不会互相覆盖。Analysis 页面上的每一条非平凡结论也都标注了
-  事实 / 元数据声明 / 推断 / 假设 / 未知 五档标签，避免把解释当结论讲。
+* **证据优先：区分“元数据声明”和“物理验证事实”。** 例如字段 dtype 的 metadata 声明和 Parquet 中实际读取到的物理类型会分别保留，不会互相覆盖。Analysis 页面也使用事实 / 元数据声明 / 推断 / 假设 / 未知标签区分关键结论的证据等级，避免把解释当作已验证事实。
 
-* **分析结果预计算，而不是每次请求现算。** `analyze_dataset.py` 一次性
-  跑完（包含解码视频做同步校验，比较慢）写入 JSON 产物，网页只读这份
+* **分析结果预计算，而不是每次请求现算。** `analyze_dataset.py` 一次性跑完（包含解码视频做同步校验，比较慢）写入 JSON 产物，网页只读这份
   产物，不会在每次打开页面时重新计算。
 
 ## 已知限制
@@ -116,10 +107,6 @@ python scripts/run_visualizer.py --dataset-root data/raw
 
 ## 可复现性
 
-Visualizer 和 Analysis 页面读取的是同一份本地数据（`data/raw`）。分析
-结果由 `scripts/analyze_dataset.py` 一次性计算并写入 `artifacts/analysis/
-summary.json`（该文件已加入 `.gitignore`），网页只是展示这份产物；随机
-抽样用固定随机种子，有专门测试验证两次运行结果完全一致。Analysis 页面上
-引用的每一个数字都是从这份 JSON 实时计算展示的，没有手写死的数字。整条
-链路只读，不会修改 `data/raw` 里的原始数据；改动数据或分析代码后，重新
-跑一遍 `analyze_dataset.py` 即可刷新结果。
+Visualizer 和 Analysis 页面基于同一份本地数据（`data/raw/`）。分析结果由 `scripts/analyze_dataset.py` 一次性计算并写入 `artifacts/analysis/summary.json`（该文件已加入 `.gitignore`），Analysis 页面只读取并展示该分析产物。
+
+分析中的随机抽样使用固定随机种子，并有测试验证重复运行结果一致。页面展示的分析数值均来自生成的 JSON 产物，而非前端手写固定值。整条数据访问和分析链路不会修改 `data/raw/` 中的原始数据；数据或分析代码变化后，重新运行 `analyze_dataset.py` 即可刷新分析结果。
