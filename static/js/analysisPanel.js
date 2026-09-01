@@ -165,7 +165,11 @@ function summaryRow(label, summary) {
 function statTermsNote() {
   return `
     <p class="sectionNote">
-      Percentiles summarize typical and tail behavior; max is shown only as an extreme reference.
+      How to read — Median is the 50th percentile; P95/P99 mean that 95%/99%
+      of valid samples are at or below that value. Max is shown only as an
+      extreme reference. Count is the number of valid samples for that metric;
+      bilateral hand metrics pool left and right hands. Percentiles describe
+      the distribution and are not data-quality or anomaly thresholds.
     </p>
   `;
 }
@@ -286,6 +290,10 @@ function renderDistributions(report) {
         <div class="chartWrapper"><canvas id="histCameraSpeed"></canvas></div>
       </div>
       <p class="limitationNote">
+        Hand centroid speed measures whole-hand translation from the mean position
+        of the 21 landmarks; it does not measure finger articulation.
+      </p>
+      <p class="limitationNote">
         ${evidenceTag("inference", "Inference")}: hand/camera speed are strongly right-skewed,
         consistent with a task alternating low-motion and high-motion phases.
       </p>
@@ -294,7 +302,8 @@ function renderDistributions(report) {
         <div class="chartWrapper"><canvas id="histArticulationRate"></canvas></div>
       </div>
       <p class="limitationNote">
-        Articulation rate measures pose change, not semantic actions such as "grasping".
+        Articulation rate measures change in the MANO pose vector over time, not
+        semantic actions such as grasping.
       </p>
       ${highMotionRegionsTable(report)}
     </section>
