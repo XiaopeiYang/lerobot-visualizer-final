@@ -6,9 +6,10 @@ episode 可视化工具，以及一个数据集级别的分析页面。
 ## 环境
 
 ```bash
-conda create -n lerobot-vis python=3.11 -y
-conda activate lerobot-vis
-pip install -e .
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e .
 ```
 
 依赖直接写在 `pyproject.toml` 里（`pyarrow`、`av`、`flask`）。
