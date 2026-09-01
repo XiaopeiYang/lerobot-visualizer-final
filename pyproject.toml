@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "lerobot-visualizer"
 version = "0.1.0"
 description = "Schema inspection and local visualization for a confidential LeRobot dataset"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "av==18.1.0",
     "pyarrow==25.0.1",

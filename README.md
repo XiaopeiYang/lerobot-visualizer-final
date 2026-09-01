@@ -1,4 +1,4 @@
-# LeRobot 数据集可视化与分析工具（中文说明）
+# LeRobot 数据集可视化与分析工具
 
 面向一个 LeRobot 3.0 数据集（人体第一视角手部追踪）的
 episode 可视化工具，以及一个数据集级别的分析页面。
@@ -6,9 +6,9 @@ episode 可视化工具，以及一个数据集级别的分析页面。
 ## 环境
 
 ```bash
-python3.11 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e .
+conda create -n lerobot-vis python=3.11 -y
+conda activate lerobot-vis
+pip install -e .
 ```
 
 依赖直接写在 `pyproject.toml` 里（`pyarrow`、`av`、`flask`）。
